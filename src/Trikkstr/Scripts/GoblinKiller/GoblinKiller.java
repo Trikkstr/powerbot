@@ -1,6 +1,7 @@
 package Trikkstr.Scripts.GoblinKiller;
 
 import Trikkstr.Scripts.Tasks.Bank;
+import Trikkstr.Scripts.Tasks.BuyKebabs;
 import Trikkstr.Scripts.Tasks.Fight;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.PollingScript;
@@ -13,7 +14,7 @@ import java.util.List;
 
         name="Goblin Killer",
         description = "Kills Goblins and Loots them",
-        properties = "client=4; author=Trikkstr; topic=1343746;"
+        properties = "client=4"
 )
 
 public class GoblinKiller extends PollingScript<ClientContext>
@@ -34,6 +35,7 @@ public class GoblinKiller extends PollingScript<ClientContext>
         System.out.println("Starting.");
 
         taskList.add(new Bank(ctx));
+        taskList.add(new BuyKebabs(ctx));
         taskList.add(new Fight(ctx));
 
     }
@@ -54,6 +56,10 @@ public class GoblinKiller extends PollingScript<ClientContext>
     {
         System.out.printf("Polling...\n");
 
+        final int coins = ctx.inventory.select().id(995).count(true);
+
+        System.out.printf("Current Coins: %d\n", coins);
+
         for (Task task : taskList)
         {
             if (ctx.controller.isStopping())
@@ -67,7 +73,6 @@ public class GoblinKiller extends PollingScript<ClientContext>
                 break;
             }
         }
-
         pollCount += 1;
     }
 }

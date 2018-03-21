@@ -19,6 +19,11 @@ public class Fight extends Task
 
     private final Walker walker = new Walker(ctx);
 
+  //  private final boolean bankLogic = ctx.inventory.select().id(FOOD).count() < 1 && !ctx.players.local().inCombat()
+          //  && ((ctx.inventory.select().id(995).count(true) > 29 && ctx.players.local().tile().x() < 3268)
+         //   || ctx.inventory.select().id(995).count(true) < 10);
+
+
     Component inventory = ctx.widgets.widget(161).component(61);
 
     public Fight(ClientContext ctx)
@@ -37,6 +42,7 @@ public class Fight extends Task
     {
         System.out.printf("Executing Fight.\n");
         System.out.printf("Health: %d\n", ctx.combat.health());
+        System.out.println("Food Items: "+ctx.inventory.select().id(FOOD).count());
 
         //IF YOU ARE NOT PAST THE GATE THEN WALK THE PATH, THEN OPEN THE GATE
 
@@ -82,7 +88,7 @@ public class Fight extends Task
 
         if(hasFood() || ctx.combat.health() >= 10)
         {
-            System.out.printf(("Has Food: True\n"));
+            System.out.printf(("Player is ready for combat.\n"));
 
             if(needsHeal())
             {
@@ -135,6 +141,7 @@ public class Fight extends Task
     public void pickup()
     {
         GroundItem loot = getLoot();
+                //ctx.groundItems.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).nearest().poll();
 
         final int startingWealth = ctx.inventory.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).count(true);
 
@@ -157,7 +164,7 @@ public class Fight extends Task
                 final int currentWealth = ctx.inventory.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).count(true);
                 return currentWealth != startingWealth;
             }
-        }, 400, 7);
+        }, 400, 12);
     }
 
     public void attack()
@@ -175,7 +182,6 @@ public class Fight extends Task
 
         goblin.interact("Attack", "Goblin");
 
-        //after initiating an attack, wait until you or the target are in combat
         Condition.wait(new Callable<Boolean>()
         {
             @Override
@@ -186,7 +192,6 @@ public class Fight extends Task
             }
         }, 500, 10);
 
-        //if one of the the two was in combat, and it was not you then you can continue
         Condition.wait(new Callable<Boolean>()
         {
             @Override
