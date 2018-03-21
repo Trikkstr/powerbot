@@ -151,5 +151,7 @@ public class Bank extends Task
             ctx.bank.withdraw(FOOD[1], 10);
             ctx.bank.close();
         }
+        
+        GoblinKiller.banked = true;
     }
 }
