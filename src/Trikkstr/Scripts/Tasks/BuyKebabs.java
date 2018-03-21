@@ -31,7 +31,8 @@ public class BuyKebabs extends Task
     public boolean activate()
     {
         return ctx.inventory.select().id(995).count(true) > 10
-                && ctx.players.local().tile().x() > 3267;
+                && ctx.players.local().tile().x() > 3267
+                && GoblinKiller.banked;
     }
 
     @Override
@@ -124,6 +125,11 @@ public class BuyKebabs extends Task
                 return ctx.inventory.select().count() != trigger;
             }
         }, 1000, 6);
+        
+        if(ctx.inventory.select().id(995).count(true) == 10)
+        {
+            GoblinKiller.banked = false;
+        }
     }
 
     private Npc detectKarim()
