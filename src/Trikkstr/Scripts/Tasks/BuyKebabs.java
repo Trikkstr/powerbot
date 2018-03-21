@@ -22,7 +22,6 @@ public class BuyKebabs extends Task
 
     Npc karim;
 
-
     public BuyKebabs(ClientContext ctx)
     {
         super(ctx);
