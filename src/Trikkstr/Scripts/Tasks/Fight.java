@@ -18,7 +18,7 @@ public class Fight extends Task
     final static int HUT_VALUES[] = {3243, 3244, 3245, 3246, 3247, 3248};
 
     private final Walker walker = new Walker(ctx);
-
+    
     Component inventory = ctx.widgets.widget(161).component(61);
 
     public Fight(ClientContext ctx)
@@ -41,59 +41,36 @@ public class Fight extends Task
 
         //IF YOU ARE NOT PAST THE GATE THEN WALK THE PATH, THEN OPEN THE GATE
 
-        while(ctx.players.local().tile().x() > 3267)
+        if(ctx.players.local().tile().x() > 3267)
         {
-            walker.walkPath(CONSTANTS.AK_BANK_TO_GOBLINS);
+            walkToGoblins();
+        }
 
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return ctx.players.local().inCombat();
+        else
+        {
+            if (bonesInInventory() && !ctx.players.local().inCombat())
+                dropBones();
+
+            if (lootNearby() && !ctx.players.local().inCombat())
+            {
+                System.out.printf("Looting.\n");
+                pickup();
+            }
+
+            if (hasFood() || ctx.combat.health() >= 10)
+            {
+                System.out.printf(("Player is ready for combat.\n"));
+
+                if (needsHeal())
+                {
+                    System.out.printf("Needs Heal: True\n");
+                    heal();
                 }
-            }, 1000, 1);
-
-            //if close to the gate and not already on the other side, then pay the toll
-            if(ctx.objects.select().id(2882).poll().tile().distanceTo(ctx.players.local()) < 8
-                    && ctx.players.local().tile().x() > 3267)
-            {
-                System.out.printf("Opening Al-Kharid Gate\n");
-                if (!ctx.objects.select().id(2882).poll().inViewport())
-                    ctx.camera.turnTo(ctx.objects.select().id(2882).poll());
-
-                ctx.objects.select().id(2882).poll().interact("Pay-toll(10gp)", "Gate");
-
-                Condition.wait(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        return ctx.players.local().tile().x() < 3268;
-                    }
-                }, 500, 6);
-            }
-        }
-
-        if(bonesInInventory() && !ctx.players.local().inCombat())
-            dropBones();
-
-
-        if(lootNearby() && !ctx.players.local().inCombat())
-        {
-            System.out.printf("Looting.\n");
-            pickup();
-        }
-
-        if(hasFood() || ctx.combat.health() >= 10)
-        {
-            System.out.printf(("Player is ready for combat.\n"));
-
-            if(needsHeal())
-            {
-                System.out.printf("Needs Heal: True\n");
-                heal();
-            }
-            else if(shouldAttack())
-            {
-                System.out.printf("Should Attack: True\n");
-                attack();
+                else if (shouldAttack())
+                {
+                    System.out.printf("Should Attack: True\n");
+                    attack();
+                }
             }
         }
     }
@@ -315,5 +292,35 @@ public class Fight extends Task
                 return count == 0;
             }
         }).nearest().poll();
+    }
+
+    public void walkToGoblins()
+    {
+        walker.walkPath(CONSTANTS.AK_BANK_TO_GOBLINS);
+
+        Condition.wait(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return ctx.players.local().inCombat();
+            }
+        }, 1000, 1);
+
+        //if close to the gate and not already on the other side, then pay the toll
+        if(ctx.objects.select().id(2882).poll().tile().distanceTo(ctx.players.local()) < 8
+                && ctx.players.local().tile().x() > 3267)
+        {
+            System.out.printf("Opening Al-Kharid Gate\n");
+            if (!ctx.objects.select().id(2882).poll().inViewport())
+                ctx.camera.turnTo(ctx.objects.select().id(2882).poll());
+
+            ctx.objects.select().id(2882).poll().interact("Pay-toll(10gp)", "Gate");
+
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return ctx.players.local().tile().x() < 3268;
+                }
+            }, 500, 6);
+        }
     }
 }
