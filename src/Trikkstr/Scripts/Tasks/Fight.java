@@ -165,6 +165,11 @@ public class Fight extends Task
 
     private void pickupBones()
     {
+        if(unselectedInventory.textureId() == -1)
+        {
+            inventory.click();
+        }
+    
         GroundItem loot = getBones();
 
         startingInventory = ctx.inventory.select().id(526).count(true);
