@@ -61,10 +61,6 @@ public class GoblinKiller extends PollingScript<ClientContext>
     {
         System.out.printf("Polling...\n");
 
-        final int coins = ctx.inventory.select().id(995).count(true);
-
-        System.out.printf("Current Coins: %d\n", coins);
-
         for (Task task : taskList)
         {
             if (ctx.controller.isStopping())
