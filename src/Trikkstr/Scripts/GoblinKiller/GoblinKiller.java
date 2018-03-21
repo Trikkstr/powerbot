@@ -7,6 +7,7 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,20 +20,24 @@ import java.util.List;
 
 public class GoblinKiller extends PollingScript<ClientContext>
 {
-    int pollCount = 0;
+    public static boolean bones;
+    private int selection;
 
-    long startTime;
-    long endTime;
-    long runTime;
+    private int pollCount = 0;
 
-    public static List<Task> taskList = new ArrayList<Task>();
+    private long startTime;
+    private long endTime;
+    private long runTime;
 
+    private List<Task> taskList = new ArrayList<Task>();
 
     @Override
     public void start()
     {
         startTime = System.currentTimeMillis();
         System.out.println("Starting.");
+
+        setBones();
 
         taskList.add(new Bank(ctx));
         taskList.add(new BuyKebabs(ctx));
@@ -56,6 +61,10 @@ public class GoblinKiller extends PollingScript<ClientContext>
     {
         System.out.printf("Polling...\n");
 
+        final int coins = ctx.inventory.select().id(995).count(true);
+
+        System.out.printf("Current Coins: %d\n", coins);
+
         for (Task task : taskList)
         {
             if (ctx.controller.isStopping())
@@ -70,5 +79,20 @@ public class GoblinKiller extends PollingScript<ClientContext>
             }
         }
         pollCount += 1;
+    }
+
+    private void setBones()
+    {
+        selection = JOptionPane.showConfirmDialog(null, "Would you like to pickup and bury bones?",
+                "Bury Bones?", JOptionPane.YES_NO_OPTION);
+
+        if(selection == 0)
+        {
+            bones = true;
+        }
+        else
+        {
+            bones = false;
+        }
     }
 }

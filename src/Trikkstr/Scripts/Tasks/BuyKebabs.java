@@ -12,15 +12,15 @@ import java.util.concurrent.Callable;
 public class BuyKebabs extends Task
 {
 
-    Component clickToContinue = ctx.widgets.widget(231).component(2);
-    Component clickToContinue2 = ctx.widgets.widget(217).component(2);
-    Component yes = ctx.widgets.widget(219).component(0).component(2);
+    private final Component clickToContinue = ctx.widgets.widget(231).component(2);
+    private final Component clickToContinue2 = ctx.widgets.widget(217).component(2);
+    private final Component yes = ctx.widgets.widget(219).component(0).component(2);
 
-    final static int FOOD[] = { 315, 1971, 2309 };
+    private final Tile karimsTile = new Tile(3273, 3180, 0);
 
-    final static Tile karimsTile = new Tile(3273, 3180, 0);
+    private int trigger;
 
-    Npc karim;
+    private Npc karim;
 
     public BuyKebabs(ClientContext ctx)
     {
@@ -58,7 +58,7 @@ public class BuyKebabs extends Task
         }
     }
 
-    public void stepToKarim()
+    private void stepToKarim()
     {
         karim = detectKarim();
 
@@ -82,9 +82,8 @@ public class BuyKebabs extends Task
         ctx.camera.turnTo(karim);
     }
 
-    public void makePurchase()
+    private void makePurchase()
     {
-
         karim = detectKarim();
 
         System.out.println("Talking to Karim.");
@@ -106,7 +105,7 @@ public class BuyKebabs extends Task
             }
         }, 1000, 6);
 
-        final int trigger = ctx.inventory.select().count();
+        trigger = ctx.inventory.select().count();
 
         yes.click();
 
@@ -127,7 +126,7 @@ public class BuyKebabs extends Task
         }, 1000, 6);
     }
 
-    public Npc detectKarim()
+    private Npc detectKarim()
     {
         return ctx.npcs.select().id(529).poll();
     }

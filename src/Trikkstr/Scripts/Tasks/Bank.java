@@ -10,10 +10,13 @@ import java.util.concurrent.Callable;
 
 public class Bank extends Task
 {
-
-    final static int FOOD[] = { 315, 1971, 2309 };
-
     private final Walker walker = new Walker(ctx);
+
+    private final int FOOD[] = { 315, 1971, 2309 };
+
+    private int bankBalance;
+    private int spendable;
+    private int foodAvailable;
 
     public Bank(ClientContext ctx)
     {
@@ -36,12 +39,17 @@ public class Bank extends Task
     public void execute()
     {
         System.out.printf("Executing Bank.\n");
-        
+
+        //Walk to the bank
         if(ctx.players.local().tile().distanceTo(ctx.bank.nearest()) > 5)
         {
             walkToBank();
         }
 
+        //if(near bank)
+        //  open bank
+        //  deposit inventory
+        //  withdraw food/coins
         else if(ctx.players.local().tile().distanceTo(ctx.bank.nearest()) < 6)
         {
             makeDeposit();
@@ -53,7 +61,7 @@ public class Bank extends Task
         }
     }
 
-    public void walkToBank()
+    private void walkToBank()
     {
         walker.walkPathReverse(CONSTANTS.AK_BANK_TO_GOBLINS);
 
@@ -76,7 +84,7 @@ public class Bank extends Task
         }
     }
 
-    public void makeDeposit()
+    private void makeDeposit()
     {
         ctx.camera.turnTo(ctx.bank.nearest());
 
@@ -90,18 +98,18 @@ public class Bank extends Task
         Condition.sleep(Random.nextInt(1500, 2666));
     }
 
-    public void makeWithdraw()
+    private void makeWithdraw()
     {
         //check the balance
-        int bankBalance = ctx.bank.select().id(995).count(true);
+        bankBalance = ctx.bank.select().id(995).count(true);
         System.out.printf("Balance: %d\n", bankBalance);
 
         //subtract 10 from the balance (10 coins saved to get back to the goblins
-        int spendable = bankBalance - 10;
+        spendable = bankBalance - 10;
         System.out.printf("Spendable: %d\n", spendable);
 
         //check to see if there are kebabs in the bank
-        int foodAvailable = ctx.bank.select().id(FOOD[1]).count(true);
+        foodAvailable = ctx.bank.select().id(FOOD[1]).count(true);
         System.out.printf("Food Available In Bank: %d\n", foodAvailable);
 
         //if there are 10 coins or less and no food then exit (10 to cross and at least one coin or food to eat)
