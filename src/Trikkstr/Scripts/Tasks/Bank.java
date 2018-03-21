@@ -30,42 +30,18 @@ public class Bank extends Task
                 && !ctx.players.local().inCombat()
                 && (ctx.inventory.select().id(995).count(true) > 29 ||
                 (ctx.inventory.select().id(995).count(true) < 10 && ctx.players.local().tile().x() > 3267));
-                /*
-                ctx.inventory.select().id(FOOD).count() < 1 && !ctx.players.local().inCombat()
-                && ((ctx.inventory.select().id(995).count(true) > 29 && ctx.players.local().tile().x() < 3268)
-                || ctx.inventory.select().id(995).count(true) < 10 && ctx.players.local().tile().x() > 3267);
-        */
     }
 
     @Override
     public void execute()
     {
         System.out.printf("Executing Bank.\n");
-
-        //if(not near bank)
-        //  walktobank();
-
-        //Walk to the bank
+        
         if(ctx.players.local().tile().distanceTo(ctx.bank.nearest()) > 5)
         {
             walkToBank();
         }
 
-        /*
-        Condition.wait(new Callable<Boolean>()
-        {
-            @Override
-            public Boolean call() throws Exception
-            {
-                return !ctx.players.local().inMotion();
-            }
-        }, 1000, 5);
-        */
-
-        //if(near bank)
-        //  open bank
-        //  deposit inventory
-        //  withdraw food/coins
         else if(ctx.players.local().tile().distanceTo(ctx.bank.nearest()) < 6)
         {
             makeDeposit();
@@ -80,15 +56,6 @@ public class Bank extends Task
     public void walkToBank()
     {
         walker.walkPathReverse(CONSTANTS.AK_BANK_TO_GOBLINS);
-
-        /*
-        Condition.wait(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return ctx.players.local().inCombat();
-            }
-        }, 1000, 1);
-        */
 
         //if close to the gate and not already on the other side, then pay the toll
         if(ctx.objects.select().id(2882).poll().tile().distanceTo(ctx.players.local()) < 4
