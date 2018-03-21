@@ -21,6 +21,8 @@ import java.util.List;
 public class GoblinKiller extends PollingScript<ClientContext>
 {
     public static boolean bones;
+    public static boolean banked = false;
+
     private int selection;
 
     private int pollCount = 0;
