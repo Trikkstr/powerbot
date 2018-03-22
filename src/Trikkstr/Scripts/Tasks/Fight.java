@@ -66,21 +66,20 @@ public class Fight extends Task
 
         else
         {
-            if (lootNearby() && !ctx.players.local().inCombat())
+            if(GoblinKiller.getBones() && bonesNearby() && !ctx.players.local().inCombat())
             {
-                System.out.printf("Looting.\n");
-
-                if(GoblinKiller.getBones())
-                {
-                    pickupBones();
-                }
-
-                pickup();
+                pickupBones();
             }
 
             if (bonesInInventory() && !ctx.players.local().inCombat())
             {
                 handleBones();
+            }
+
+            if (lootNearby() && !ctx.players.local().inCombat())
+            {
+                System.out.printf("Looting.\n");
+                pickup();
             }
 
             if (hasFood() || ctx.combat.health() >= 10)
@@ -134,6 +133,13 @@ public class Fight extends Task
             return(loot.tile().distanceTo(ctx.players.local().tile()) <= 18);
         }
 
+    }
+
+    private boolean bonesNearby()
+    {
+        GroundItem loot = ctx.groundItems.select().id(526).nearest().poll();
+
+        return(loot.tile().distanceTo(ctx.players.local().tile()) <= 2);
     }
 
     private void pickup()
@@ -209,7 +215,6 @@ public class Fight extends Task
             @Override
             public Boolean call() throws Exception
             {
-
                 return ctx.players.local().inCombat() || goblin.inCombat();
             }
         }, 500, 10);
@@ -219,7 +224,6 @@ public class Fight extends Task
             @Override
             public Boolean call() throws Exception
             {
-
                 return !ctx.players.local().inCombat();
             }
         }, 500, 6);
@@ -249,7 +253,7 @@ public class Fight extends Task
         }, 150, 20);
     }
 
-    private void handleBones() //Change to handle bones and allow the player to choose to pick up bones
+    private void handleBones()
     {
         if(unselectedInventory.textureId() == -1)
         {
@@ -277,6 +281,8 @@ public class Fight extends Task
                     return ctx.inventory.select().count() != startAmountInventory;
                 }
             }, 75, 20);
+
+            Condition.sleep(org.powerbot.script.Random.nextInt(650, 850));
         }
     }
 
