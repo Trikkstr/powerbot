@@ -70,7 +70,7 @@ public class Fight extends Task
             {
                 System.out.printf("Looting.\n");
 
-                if(GoblinKiller.bones)
+                if(GoblinKiller.getBones())
                 {
                     pickupBones();
                 }
@@ -165,11 +165,6 @@ public class Fight extends Task
 
     private void pickupBones()
     {
-        if(unselectedInventory.textureId() == -1)
-        {
-            inventory.click();
-        }
-    
         GroundItem loot = getBones();
 
         startingInventory = ctx.inventory.select().id(526).count(true);
@@ -256,11 +251,16 @@ public class Fight extends Task
 
     private void handleBones() //Change to handle bones and allow the player to choose to pick up bones
     {
+        if(unselectedInventory.textureId() == -1)
+        {
+            inventory.click();
+        }
+
         for(Item bones : ctx.inventory.select().id(526))
         {
             startAmountInventory = ctx.inventory.select().count();
 
-            if(GoblinKiller.bones)
+            if(GoblinKiller.getBones())
             {
                 bones.interact("Bury", "Bones");
             }

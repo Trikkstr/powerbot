@@ -1,6 +1,7 @@
 package Trikkstr.Scripts.Tasks;
 
 import Trikkstr.Scripts.GoblinKiller.CONSTANTS;
+import Trikkstr.Scripts.GoblinKiller.GoblinKiller;
 import Trikkstr.Scripts.GoblinKiller.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
@@ -151,7 +152,7 @@ public class Bank extends Task
             ctx.bank.withdraw(FOOD[1], 10);
             ctx.bank.close();
         }
-        
-        GoblinKiller.banked = true;
+
+        GoblinKiller.setBanked(true);
     }
 }

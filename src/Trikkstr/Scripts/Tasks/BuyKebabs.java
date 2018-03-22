@@ -1,5 +1,6 @@
 package Trikkstr.Scripts.Tasks;
 
+import Trikkstr.Scripts.GoblinKiller.GoblinKiller;
 import Trikkstr.Scripts.GoblinKiller.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
@@ -32,7 +33,7 @@ public class BuyKebabs extends Task
     {
         return ctx.inventory.select().id(995).count(true) > 10
                 && ctx.players.local().tile().x() > 3267
-                && GoblinKiller.banked;
+                && GoblinKiller.getBanked();
     }
 
     @Override
@@ -125,10 +126,10 @@ public class BuyKebabs extends Task
                 return ctx.inventory.select().count() != trigger;
             }
         }, 1000, 6);
-        
+
         if(ctx.inventory.select().id(995).count(true) == 10)
         {
-            GoblinKiller.banked = false;
+            GoblinKiller.setBanked(false);
         }
     }
 
