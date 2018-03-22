@@ -63,7 +63,6 @@ public class Fight extends Task
         {
             walkToGoblins();
         }
-
         else
         {
             if(GoblinKiller.getBones() && bonesNearby() && !ctx.players.local().inCombat())
@@ -215,7 +214,7 @@ public class Fight extends Task
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.players.local().inCombat() || goblin.inCombat();
+                return goblin.inCombat();
             }
         }, 500, 10);
 
@@ -224,9 +223,9 @@ public class Fight extends Task
             @Override
             public Boolean call() throws Exception
             {
-                return !ctx.players.local().inCombat();
+                return ctx.players.local().inCombat();
             }
-        }, 500, 6);
+        }, 500, 10);
     }
 
     private void heal()
