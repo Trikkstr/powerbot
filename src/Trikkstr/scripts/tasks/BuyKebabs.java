@@ -1,8 +1,8 @@
 package Trikkstr.scripts.tasks;
 
-import Trikkstr.scripts.GoblinKiller.Constants;
-import Trikkstr.scripts.GoblinKiller.GoblinKiller;
-import Trikkstr.scripts.GoblinKiller.Task;
+import Trikkstr.scripts.goblin_killer.Constants;
+import Trikkstr.scripts.goblin_killer.GoblinKiller;
+import Trikkstr.scripts.goblin_killer.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
