@@ -1,4 +1,4 @@
-package Trikkstr.scripts.goblin_killer;
+package Trikkstr.scripts.GoblinKiller;
 
 import Trikkstr.scripts.tasks.Bank;
 import Trikkstr.scripts.tasks.BuyKebabs;

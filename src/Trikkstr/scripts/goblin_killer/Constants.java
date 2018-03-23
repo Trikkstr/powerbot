@@ -1,4 +1,4 @@
-package Trikkstr.scripts.goblin_killer;
+package Trikkstr.scripts.GoblinKiller;
 
 import org.powerbot.script.Tile;
 
