@@ -27,15 +27,6 @@ public class GoblinKiller extends PollingScript<ClientContext> implements PaintL
     public static boolean bones;
     private static boolean banked = false;
 
-    /*
-    private int attackLevelTarget;
-    private int strengthLevelTarget;
-    private int defenseLevelTarget;
-    private int prayerTarget;
-
-    private int selection;
-    */
-
     private int pollCount = 0;
 
     private long startTime;
@@ -107,23 +98,6 @@ public class GoblinKiller extends PollingScript<ClientContext> implements PaintL
         pollCount += 1;
     }
 
-    /*
-    private void setBones()
-    {
-        selection = JOptionPane.showConfirmDialog(null, "Would you like to pickup and bury bones?",
-                "Bury Bones?", JOptionPane.YES_NO_OPTION);
-
-        if(selection == 0)
-        {
-            bones = true;
-        }
-        else
-        {
-            bones = false;
-        }
-    }
-    */
-
     public static boolean getBones()
     {
         return bones;
@@ -149,24 +123,6 @@ public class GoblinKiller extends PollingScript<ClientContext> implements PaintL
         substatus = string;
     }
 
-    /*
-    private void initializeOptions()
-    {
-        selection = JOptionPane.showConfirmDialog(null, "Would you like to pickup and bury bones?",
-                "Bury Bones?", JOptionPane.YES_NO_OPTION);
-
-
-        if(selection == 0)
-        {
-            bones = true;
-        }
-        else
-        {
-            bones = false;
-        }
-    }
-    */
-
     private void updateEXP()
     {
         attack = ctx.skills.experience(Constants.SKILLS_ATTACK);
@@ -179,39 +135,6 @@ public class GoblinKiller extends PollingScript<ClientContext> implements PaintL
 
         exp = attack + hitpoints + strength + defense + range + prayer + magic - initialEXP;
     }
-
-
-    /*
-    @Override
-    public void repaint(Graphics graphics)
-    {
-        long runtime = System.currentTimeMillis() - startTime;
-
-        long hours = runtime/(1000*60*60) % 60;
-        long minutes = runtime/(1000*60) % 60;
-        long seconds = runtime/1000 % 60;
-
-        //long timeRemaining2 = hopTime - System.currentTimeMillis();
-
-        //long hours2 = timeRemaining2/(1000*60*60) % 60;
-        //long minutes2 = timeRemaining2/(1000*60) % 60;
-        //long seconds2 = timeRemaining2/1000 % 60;
-
-        Graphics2D g = (Graphics2D)graphics;
-
-        g.setFont(font);
-
-        g.setColor(new Color(0,0,0,180));
-        g.fillRect(582,180, 200, 50);
-
-        g.setColor(new Color(255,255,255));
-        g.drawRect(582, 180,200,50);
-
-        g.drawString("Run Time: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 582 + 10, 180 + 15);
-        g.drawString("Exp Gain: " + String.format("%d", exp), 582 + 10, 180 + 30);
-        g.drawString(String.format("Status: %s - %s", status, substatus), 582 + 10, 180 + 45);
-    }
-    */
 
     @Override
     public void repaint(Graphics graphics)
