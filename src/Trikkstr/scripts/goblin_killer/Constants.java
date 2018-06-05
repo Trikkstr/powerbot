@@ -10,10 +10,7 @@ public class Constants
 
     public static final Area ABANDONED_HOUSE = new Area(new Tile(3242, 3243, 0), new Tile(3249, 3249, 0));
 
-    public static final int STACKABLE_DROPS[] = {555, 557, 558, 559, 877, 882, 884, 995};
     public static final int DROPS[] = {555, 557, 558, 559, 877, 882, 884, 995};
-
-    //public static final int HUT_VALUES[] = {3243, 3244, 3245, 3246, 3247, 3248};
     public static final int GOBLIN[] = { 3029, 3030, 3031, 3032, 3034, 3035 };
     public static final int FOOD[] = { 315, 1971, 2309 };
     public static final int BONES[] = {526};
