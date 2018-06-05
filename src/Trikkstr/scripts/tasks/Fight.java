@@ -3,12 +3,17 @@ package Trikkstr.scripts.tasks;
 import Trikkstr.scripts.goblin_killer.Constants;
 import Trikkstr.scripts.goblin_killer.GoblinKiller;
 import Trikkstr.scripts.goblin_killer.Task;
+
+
+import org.powerbot.script.Tile;
+import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
+import org.powerbot.script.Random;
 import org.powerbot.script.rt4.*;
 
+
 import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
 
 public class Fight extends Task
 {
@@ -19,160 +24,121 @@ public class Fight extends Task
     private final Component unselectedInventory = ctx.widgets.widget(161).component(54);
 
     private Npc goblin;
+    private Tile targetTile;
 
     private int startingHealth;
     private int currentHealth;
-    private int startingInventory;
-    private int currentInventory;
     private int startAmountInventory;
 
-    private boolean hit;
-    private int x;
-    private int y;
-    private int i;
-    private int j;
-    private int count;
-
-    public Fight(ClientContext ctx)
-    {
+    public Fight(ClientContext ctx) {
         super(ctx);
     }
 
     @Override
-    public boolean activate()
-    {
+    public boolean activate() {
         return true;
     }
 
     @Override
     public void execute()
     {
+        GoblinKiller.setStatus("Fighting");
         System.out.printf("Executing Fight.\n");
-        System.out.printf("Health: %d\n", ctx.combat.health());
-        System.out.println("Food Items: "+ctx.inventory.select().id(Constants.FOOD).count());
 
-        //IF YOU ARE NOT PAST THE GATE THEN WALK THE PATH, THEN OPEN THE GATE
+        if (GoblinKiller.getBanked())
+        {
+            GoblinKiller.setBanked(false);
+        }
 
-        if(ctx.players.local().tile().x() > 3267)
+        if (ctx.players.local().tile().x() > 3267)
         {
             walkToGoblins();
         }
         else
         {
-            if(GoblinKiller.getBones() && bonesNearby() && !ctx.players.local().inCombat())
+            if(!ctx.players.local().inCombat())
             {
-                pickupBones();
-            }
+                if(targetTile != null)
+                {
+                    lootItemPile(targetTile);
+                }
 
-            if (bonesInInventory() && !ctx.players.local().inCombat())
-            {
+                lootCoins();
+
                 handleBones();
-            }
-
-            if (lootNearby() && !ctx.players.local().inCombat())
-            {
-                System.out.printf("Looting.\n");
-                pickup();
             }
 
             if (hasFood() || ctx.combat.health() >= 10)
             {
-                System.out.printf(("Player is ready for combat.\n"));
-
                 if (needsHeal())
                 {
-                    System.out.printf("Needs Heal: True\n");
                     heal();
                 }
                 else if (shouldAttack())
                 {
-                    System.out.printf("Should Attack: True\n");
                     attack();
+                }
+
+                if(goblin != null && goblin.valid())
+                {
+                    targetTile = goblin.tile();
                 }
             }
         }
     }
 
-    private boolean needsHeal()
-    {
+    private boolean needsHeal() {
         return ctx.combat.health() < 6;
     }
 
-    private boolean shouldAttack()
-    {
+    private boolean shouldAttack() {
         return !ctx.players.local().inCombat();
     }
 
-    private boolean bonesInInventory()
-    {
-        return ctx.inventory.select().id(526).count() > 0;
-    }
 
-    private boolean hasFood()
-    {
+    private boolean hasFood() {
         return ctx.inventory.select().id(Constants.FOOD).count() > 0;
     }
 
-    private boolean lootNearby()
+    /*
+    private boolean isNearby(int ids[])
     {
-        GroundItem loot = ctx.groundItems.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).nearest().poll();
-
-        if(ctx.inventory.select().id(Constants.FOOD).count() > 0)
+        if(ids == Constants.STACKABLE_DROPS)
         {
-            return(loot.tile().distanceTo(ctx.players.local().tile()) <= 4);
+            loot = exclusiveLocateGroundItem(Constants.STACKABLE_DROPS, Constants.ABANDONED_HOUSE);//ctx.groundItems.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).nearest().poll();
         }
         else
         {
-            return(loot.tile().distanceTo(ctx.players.local().tile()) <= 18);
+            loot = exclusiveLocateGroundItem(Constants.BONES, Constants.ABANDONED_HOUSE);
         }
 
+        if (ctx.inventory.select().id(Constants.FOOD).count() > 0)
+        {
+            return (loot.tile().distanceTo(ctx.players.local().tile()) <= 4);
+        }
+        else
+        {
+            return (loot.tile().distanceTo(ctx.players.local().tile()) <= 18);
+        }
     }
+    */
 
-    private boolean bonesNearby()
+    /*
+    private void takeItem(final int ids[])
     {
-        GroundItem loot = ctx.groundItems.select().id(526).nearest().poll();
+        GoblinKiller.setSubstatus("Picking up item");
 
-        return(loot.tile().distanceTo(ctx.players.local().tile()) <= 2);
-    }
+        GroundItem loot = exclusiveLocateGroundItem(ids, Constants.ABANDONED_HOUSE);
 
-    private void pickup()
-    {
-        GroundItem loot = getLoot();
+        startingInventory = ctx.inventory.select().id(ids).count(true);
 
-        startingInventory = ctx.inventory.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).count(true);
-
-        if(ctx.inventory.select().id(loot).count() > 0 || ctx.inventory.count() < 28)
+        //if the inventory is full, but there is a stack already started
+        //then this will still execute
+        if (ctx.inventory.select().id(loot).count() > 0 || ctx.inventory.count() < 28)
         {
             ctx.camera.turnTo(loot);
 
-            if(!loot.inViewport())
-                ctx.movement.step(loot);
-
-            loot.interact("Take");
-        }
-
-        Condition.wait(new Callable<Boolean>()
-        {
-            @Override
-            public Boolean call() throws Exception
-            {
-                currentInventory = ctx.inventory.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).count(true);
-                return currentInventory != startingInventory;
-            }
-        }, 400, 12);
-    }
-
-    private void pickupBones()
-    {
-        GroundItem loot = getBones();
-
-        startingInventory = ctx.inventory.select().id(526).count(true);
-
-        if(ctx.inventory.select().id(loot).count() > 0 || ctx.inventory.count() < 28)
-        {
-            ctx.camera.turnTo(loot);
-
-            if(!loot.inViewport())
+            if (!loot.inViewport())
             {
                 ctx.movement.step(loot);
             }
@@ -185,40 +151,133 @@ public class Fight extends Task
             @Override
             public Boolean call() throws Exception
             {
-                currentInventory = ctx.inventory.select().id(526).count(true);
+                currentInventory = ctx.inventory.select().id(ids).count(true);
                 return currentInventory != startingInventory;
             }
         }, 400, 12);
+    }
+    */
+
+    private void lootItemPile(Tile targetTile)
+    {
+        GoblinKiller.setSubstatus("Looting");
+
+        if(GoblinKiller.getBones())
+        {
+            while(ctx.groundItems.select().at(targetTile).id(Constants.BONES).poll().valid() && ctx.inventory.count() < 28)
+            {
+                System.out.printf("Item pile contains bones.\n");
+
+                final GroundItem item = ctx.groundItems.select().at(targetTile).id(Constants.BONES).poll();
+
+                item.interact(false, "Take", item.name());
+
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception
+                    {
+                        return !item.valid();
+                    }
+                }, 250, 8);
+            }
+        }
+
+        while(ctx.groundItems.select().id(Constants.DROPS).at(targetTile).poll().valid() && ctx.inventory.count() < 28)
+        {
+            System.out.printf("Item pile contains loot.\n");
+
+            final GroundItem item = ctx.groundItems.select().id(Constants.DROPS).at(targetTile).poll();
+
+            item.interact(false, "Take", item.name());
+
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception
+                {
+                    return !item.valid();
+                }
+            }, 250, 8);
+
+            //i--;
+        }
+
+        targetTile = null;
+    }
+
+    private void lootCoins()
+    {
+        final GroundItem coins = ctx.groundItems.select().id(Constants.COINS).select(new Filter<GroundItem>() {
+            @Override
+            public boolean accept(GroundItem groundItem)
+            {
+                if(ctx.inventory.select().id(Constants.FOOD).count() > 1)
+                {
+                    return groundItem.tile().distanceTo(ctx.players.local().tile()) < 4;
+                }
+                else
+                {
+                    return groundItem.tile().distanceTo(ctx.players.local().tile()) < 30;
+                }
+
+            }
+        }).select(new Filter<GroundItem>() {
+            @Override
+            public boolean accept(GroundItem groundItem) {
+                return !Constants.ABANDONED_HOUSE.contains(groundItem);
+            }
+        }).poll();
+
+        if(coins.valid())
+        {
+            ctx.movement.step(coins);
+
+            Condition.wait(new Callable<Boolean>()
+            {
+                @Override
+                public Boolean call() throws Exception
+                {
+                    return !ctx.players.local().inMotion();
+                }
+            }, 250, 40);
+
+            coins.interact(false, "Take", coins.name());
+
+            Condition.wait(new Callable<Boolean>()
+            {
+                @Override
+                public Boolean call() throws Exception
+                {
+                    return coins.valid();
+                }
+            }, 250, 8);
+        }
     }
 
     private void attack()
     {
+        GoblinKiller.setSubstatus("Attacking");
         System.out.printf("Selecting A Goblin To Attack\n");
 
-        goblin = getGoblin();
+        goblin = exclusiveLocateNPC(Constants.GOBLIN, Constants.ABANDONED_HOUSE);
 
-        if(!goblin.inViewport())
+        if (!goblin.inViewport())
         {
             ctx.camera.turnTo(goblin);
             ctx.movement.step(goblin);
         }
 
-        goblin.interact("Attack", "Goblin");
+        goblin.interact(true, "Attack", "Goblin");
 
-        Condition.wait(new Callable<Boolean>()
-        {
+        Condition.wait(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception
-            {
+            public Boolean call() throws Exception {
                 return goblin.inCombat();
             }
         }, 500, 10);
 
-        Condition.wait(new Callable<Boolean>()
-        {
+        Condition.wait(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception
-            {
+            public Boolean call() throws Exception {
                 return ctx.players.local().inCombat();
             }
         }, 500, 10);
@@ -226,7 +285,9 @@ public class Fight extends Task
 
     private void heal()
     {
-        if(unselectedInventory.textureId() == -1)
+        GoblinKiller.setSubstatus("Healing");
+
+        if (unselectedInventory.textureId() == -1)
         {
             inventory.click();
         }
@@ -250,21 +311,26 @@ public class Fight extends Task
 
     private void handleBones()
     {
-        if(unselectedInventory.textureId() == -1)
+
+        if (unselectedInventory.textureId() == -1)
         {
             inventory.click();
         }
 
-        for(Item bones : ctx.inventory.select().id(526))
+        for (final Item bones : ctx.inventory.select().id(Constants.BONES))
         {
             startAmountInventory = ctx.inventory.select().count();
 
-            if(GoblinKiller.getBones())
+            if (GoblinKiller.getBones())
             {
+                GoblinKiller.setSubstatus("Burying bones");
+
                 bones.interact("Bury", "Bones");
             }
             else
             {
+                GoblinKiller.setSubstatus("Dropping bones");
+
                 bones.interact("Drop", "Bones");
             }
 
@@ -273,129 +339,52 @@ public class Fight extends Task
                 @Override
                 public Boolean call() throws Exception
                 {
-                    return ctx.inventory.select().count() != startAmountInventory;
+                    return !bones.valid() && ctx.players.local().animation() == -1;
                 }
-            }, 75, 20);
-
-            Condition.sleep(org.powerbot.script.Random.nextInt(650, 850));
+            }, 150, 20);
         }
     }
 
-    private Npc getGoblin()
+    private GroundItem exclusiveLocateGroundItem(int ids[], final Area area)
     {
-        return ctx.npcs.select().id(Constants.GOBLIN).select(new Filter<Npc>()
+        return ctx.groundItems.select().id(ids).select(new Filter<GroundItem>()
         {
             @Override
-            public boolean accept(Npc npc)
+            public boolean accept(GroundItem groundItem)
             {
-                return !npc.inCombat();
-            }
-        }).select(new Filter<Npc>() {
-            @Override
-            public boolean accept(Npc npc)
-            {
-                hit = false;
-                x = npc.tile().x();
-                y = npc.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(x == Constants.HUT_VALUES[i])
-                        for(j = 0; j < Constants.HUT_VALUES.length; j++)
-                            if(y == Constants.HUT_VALUES[j])
-                                hit = true;
-                }
-                return !hit;
-            }
-        }).select(new Filter<Npc>()
-        {
-            @Override
-            public boolean accept(Npc npc)
-            {
-                count = 0;
-                y = npc.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(y == Constants.HUT_VALUES[i])
-                        count += 1;
-                }
-                return count == 0;
+                return(!area.contains(groundItem.tile()));
             }
         }).nearest().poll();
     }
 
-    private GroundItem getLoot()
+    private GroundItem exclusiveLocateGroundItem(int id, final Area area)
     {
-        return ctx.groundItems.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).select(new Filter<GroundItem>()
+        return ctx.groundItems.select().id(id).select(new Filter<GroundItem>()
         {
             @Override
-            public boolean accept(GroundItem item)
+            public boolean accept(GroundItem groundItem)
             {
-                hit = false;
-                x = item.tile().x();
-                y = item.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(x == Constants.HUT_VALUES[i])
-                        for(j = 0; j < Constants.HUT_VALUES.length; j++)
-                            if(y == Constants.HUT_VALUES[j])
-                                hit = true;
-                }
-                return !hit;
-            }
-        }).select(new Filter<GroundItem>()
-        {
-            @Override
-            public boolean accept(GroundItem item)
-            {
-                int count = 0;
-                int y = item.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(y == Constants.HUT_VALUES[i])
-                        count += 1;
-                }
-                return count == 0;
+                return(!area.contains(groundItem.tile()));
             }
         }).nearest().poll();
     }
 
-    private GroundItem getBones()
+    private Npc exclusiveLocateNPC(int ids[], final Area area)
     {
-        return ctx.groundItems.select().id(526).select(new Filter<GroundItem>() {
-            @Override
-            public boolean accept(GroundItem item)
-            {
-                hit = false;
-                x = item.tile().x();
-                y = item.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(x == Constants.HUT_VALUES[i])
-                        for(j = 0; j < Constants.HUT_VALUES.length; j++)
-                            if(y == Constants.HUT_VALUES[j])
-                                hit = true;
-                }
-                return !hit;
-            }
-        }).select(new Filter<GroundItem>()
+        return ctx.npcs.select().id(ids).select(new Filter<Npc>()
         {
             @Override
-            public boolean accept(GroundItem item)
+            public boolean accept(Npc npc)
             {
-                int count = 0;
-                int y = item.tile().y();
-                for(i = 0;  i < Constants.HUT_VALUES.length; i++ )
-                {
-                    if(y == Constants.HUT_VALUES[i])
-                        count += 1;
-                }
-                return count == 0;
+                return(!area.contains(npc.tile()) && !npc.inCombat());
             }
         }).nearest().poll();
     }
 
     private void walkToGoblins()
     {
+        GoblinKiller.setSubstatus("Walking to goblins");
+
         walker.walkPath(Constants.AK_BANK_TO_GOBLINS);
 
         Condition.wait(new Callable<Boolean>()
@@ -405,24 +394,27 @@ public class Fight extends Task
             {
                 return ctx.players.local().inCombat();
             }
-        }, 1000, 1);
+        }, Random.nextInt(850, 1420), 1);
 
         //if close to the gate and not already on the other side, then pay the toll
-        if(ctx.objects.select().id(2882).poll().tile().distanceTo(ctx.players.local()) < 8
-                && ctx.players.local().tile().x() > 3267)
+        if(ctx.objects.select().id(Constants.AL_KHARID_GATE).poll().tile().distanceTo(ctx.players.local()) < 8
+                && ctx.players.local().tile().x() > Constants.GATE_SOUTH_SIDE)
         {
             System.out.printf("Opening Al-Kharid Gate\n");
-            if (!ctx.objects.select().id(2882).poll().inViewport())
-                ctx.camera.turnTo(ctx.objects.select().id(2882).poll());
 
-            ctx.objects.select().id(2882).poll().interact("Pay-toll(10gp)", "Gate");
+            if (!ctx.objects.select().id(Constants.AL_KHARID_GATE).poll().inViewport())
+            {
+                ctx.camera.turnTo(ctx.objects.select().id(Constants.AL_KHARID_GATE).poll());
+            }
+
+            ctx.objects.select().id(Constants.AL_KHARID_GATE).poll().interact("Pay-toll(10gp)", "Gate");
 
             Condition.wait(new Callable<Boolean>()
             {
                 @Override
                 public Boolean call() throws Exception
                 {
-                    return ctx.players.local().tile().x() < 3268;
+                    return ctx.players.local().tile().x() < Constants.GATE_NORTH_SIDE;
                 }
             }, 500, 6);
         }
