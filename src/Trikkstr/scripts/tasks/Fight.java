@@ -30,12 +30,14 @@ public class Fight extends Task
     private int currentHealth;
     private int startAmountInventory;
 
-    public Fight(ClientContext ctx) {
+    public Fight(ClientContext ctx) 
+    {
         super(ctx);
     }
 
     @Override
-    public boolean activate() {
+    public boolean activate() 
+    {
         return true;
     }
 
@@ -87,76 +89,20 @@ public class Fight extends Task
         }
     }
 
-    private boolean needsHeal() {
+    private boolean needsHeal() 
+    {
         return ctx.combat.health() < 6;
     }
 
-    private boolean shouldAttack() {
+    private boolean shouldAttack() 
+    {
         return !ctx.players.local().inCombat();
     }
 
-
-    private boolean hasFood() {
+    private boolean hasFood() 
+    {
         return ctx.inventory.select().id(Constants.FOOD).count() > 0;
     }
-
-    /*
-    private boolean isNearby(int ids[])
-    {
-        if(ids == Constants.STACKABLE_DROPS)
-        {
-            loot = exclusiveLocateGroundItem(Constants.STACKABLE_DROPS, Constants.ABANDONED_HOUSE);//ctx.groundItems.select().name(Pattern.compile("(.*rune)|(Coins)|(.*bolts)")).nearest().poll();
-        }
-        else
-        {
-            loot = exclusiveLocateGroundItem(Constants.BONES, Constants.ABANDONED_HOUSE);
-        }
-
-        if (ctx.inventory.select().id(Constants.FOOD).count() > 0)
-        {
-            return (loot.tile().distanceTo(ctx.players.local().tile()) <= 4);
-        }
-        else
-        {
-            return (loot.tile().distanceTo(ctx.players.local().tile()) <= 18);
-        }
-    }
-    */
-
-    /*
-    private void takeItem(final int ids[])
-    {
-        GoblinKiller.setSubstatus("Picking up item");
-
-        GroundItem loot = exclusiveLocateGroundItem(ids, Constants.ABANDONED_HOUSE);
-
-        startingInventory = ctx.inventory.select().id(ids).count(true);
-
-        //if the inventory is full, but there is a stack already started
-        //then this will still execute
-        if (ctx.inventory.select().id(loot).count() > 0 || ctx.inventory.count() < 28)
-        {
-            ctx.camera.turnTo(loot);
-
-            if (!loot.inViewport())
-            {
-                ctx.movement.step(loot);
-            }
-
-            loot.interact("Take");
-        }
-
-        Condition.wait(new Callable<Boolean>()
-        {
-            @Override
-            public Boolean call() throws Exception
-            {
-                currentInventory = ctx.inventory.select().id(ids).count(true);
-                return currentInventory != startingInventory;
-            }
-        }, 400, 12);
-    }
-    */
 
     private void lootItemPile(Tile targetTile)
     {
@@ -172,7 +118,8 @@ public class Fight extends Task
 
                 item.interact(false, "Take", item.name());
 
-                Condition.wait(new Callable<Boolean>() {
+                Condition.wait(new Callable<Boolean>() 
+                {
                     @Override
                     public Boolean call() throws Exception
                     {
@@ -190,15 +137,14 @@ public class Fight extends Task
 
             item.interact(false, "Take", item.name());
 
-            Condition.wait(new Callable<Boolean>() {
+            Condition.wait(new Callable<Boolean>() 
+            {
                 @Override
                 public Boolean call() throws Exception
                 {
                     return !item.valid();
                 }
             }, 250, 8);
-
-            //i--;
         }
 
         targetTile = null;
@@ -220,9 +166,11 @@ public class Fight extends Task
                 }
 
             }
-        }).select(new Filter<GroundItem>() {
+        }).select(new Filter<GroundItem>() 
+        {
             @Override
-            public boolean accept(GroundItem groundItem) {
+            public boolean accept(GroundItem groundItem) 
+            {
                 return !Constants.ABANDONED_HOUSE.contains(groundItem);
             }
         }).poll();
@@ -268,16 +216,20 @@ public class Fight extends Task
 
         goblin.interact(true, "Attack", "Goblin");
 
-        Condition.wait(new Callable<Boolean>() {
+        Condition.wait(new Callable<Boolean>() 
+        {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() throws Exception 
+            {
                 return goblin.inCombat();
             }
         }, 500, 10);
 
-        Condition.wait(new Callable<Boolean>() {
+        Condition.wait(new Callable<Boolean>() 
+        {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() throws Exception 
+            {
                 return ctx.players.local().inCombat();
             }
         }, 500, 10);
@@ -343,30 +295,6 @@ public class Fight extends Task
                 }
             }, 150, 20);
         }
-    }
-
-    private GroundItem exclusiveLocateGroundItem(int ids[], final Area area)
-    {
-        return ctx.groundItems.select().id(ids).select(new Filter<GroundItem>()
-        {
-            @Override
-            public boolean accept(GroundItem groundItem)
-            {
-                return(!area.contains(groundItem.tile()));
-            }
-        }).nearest().poll();
-    }
-
-    private GroundItem exclusiveLocateGroundItem(int id, final Area area)
-    {
-        return ctx.groundItems.select().id(id).select(new Filter<GroundItem>()
-        {
-            @Override
-            public boolean accept(GroundItem groundItem)
-            {
-                return(!area.contains(groundItem.tile()));
-            }
-        }).nearest().poll();
     }
 
     private Npc exclusiveLocateNPC(int ids[], final Area area)
