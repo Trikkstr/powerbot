@@ -239,19 +239,25 @@ public class Menu extends ClientAccessor {
 		if (!registered.compareAndSet(false, true)) {
 			return;
 		}
-		((AbstractBot) ctx.bot()).dispatcher.add(new PaintListener() {
-			@Override
-			public void repaint(final Graphics graphics) {
+		new Thread(() -> {
+			String lastOption = null;
+			while (!Thread.interrupted()) {
+				try {
+					Thread.sleep(40);
+				} catch (final InterruptedException ignored) {
+					break;
+				}
+
 				final Client client = ctx.client();
 				if (client == null) {
-					return;
+					continue;
 				}
 
 				final String[] actions = client.getMenuActions(), options = client.getMenuOptions();
 				if (actions == null || options == null) {
 					Menu.this.actions.set(new String[0]);
 					Menu.this.options.set(new String[0]);
-					return;
+					continue;
 				}
 				final int count = client.getMenuCount() / 15;
 				final String[] actions2 = new String[count], options2 = new String[count];
@@ -262,10 +268,19 @@ public class Menu extends ClientAccessor {
 					--d;
 				}
 
+				if(actions2.length > 0) {
+					if (actions2[0] != null && lastOption != null && actions2[0] != lastOption) {
+						lastOption = null;
+						continue;
+					}
+					lastOption = actions2[0];
+				}
+
 				Menu.this.actions.set(actions2);
 				Menu.this.options.set(options2);
+
 			}
-		});
+		}).start();
 	}
 
 	@Deprecated

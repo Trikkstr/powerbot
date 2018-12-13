@@ -7,20 +7,39 @@ import org.powerbot.script.Tile;
  * A utility class holding all the game constants for rt4.
  */
 public final class Constants {
+
+	public static final int GAME_LOGIN = 10;
+	public static final int GAME_LOGGING = 20;
+	public static final int GAME_LOBBY = 25;
+	public static final int GAME_LOGGED = 30;
+
 	public static final int BANK_WIDGET = 12;
-	public static final int BANK_ITEMS = 12;
-	public static final int BANK_SCROLLBAR = 13;
+	public static final int BANK_ITEMS = 13;
+	public static final int BANK_SCROLLBAR = 14;
 	public static final int BANK_MASTER = 3;
 	public static final int BANK_CLOSE = 11;
-	public static final int BANK_ITEM = 22;
-	public static final int BANK_NOTE = 24;
-	public static final int BANK_PLACEHOLDERS = 25;
-	public static final int BANK_DEPOSIT_INVENTORY = 29;
-	public static final int BANK_DEPOSIT_EQUIPMENT = 31;
+	public static final int BANK_ITEM = 23;
+	public static final int BANK_NOTE = 25;
+	public static final int BANK_PLACEHOLDERS = 39;
+	public static final int BANK_DEPOSIT_INVENTORY = 43;
+	public static final int BANK_DEPOSIT_EQUIPMENT = 45;
+	public static final int BANK_QUANTITY_ONE = 29;
+	public static final int BANK_QUANTITY_FIVE = 31;
+	public static final int BANK_QUANTITY_TEN = 33;
+	public static final int BANK_QUANTITY_X = 35;
+	public static final int BANK_QUANTITY_ALL = 37;
+	public static final int BANK_QUANTITY = 1666;
+	public static final int BANK_X_VALUE = 304;
 	public static final int BANK_TABS = 867;
 	public static final int BANK_TABS_HIDDEN = 0xc0000000;
 	public static final int BANK_STATE = 115;
 	public static final int BANKPIN_WIDGET = 213;
+	//The following are the values that withdraw mode varp gives.
+	public static final int BANK_WITHDRAW_MODE_ONE = 0;
+	public static final int BANK_WITHDRAW_MODE_FIVE = 4;
+	public static final int BANK_WITHDRAW_MODE_TEN = 8;
+	public static final int BANK_WITHDRAW_MODE_X = 12;
+	public static final int BANK_WITHDRAW_MODE_ALL = 16;
 
 	public static final int DEPOSITBOX_WIDGET = 192;
 	public static final int DEPOSITBOX_CLOSE = 11;
@@ -33,12 +52,21 @@ public final class Constants {
 
 	public static final int GAME_LOADED = 30;
 	public static final int GAME_LOADING = 25;
-	
+
 	public static final int LOBBY_WIDGET = 378;
-	public static final int LOBBY_PLAY = 76;
+	public static final int LOBBY_PLAY = 85;
+
+	public static final int LOGOUT_BUTTON_WIDGET = 182;
+	public static final int LOGOUT_BUTTON_COMPONENT = 12;
 
 	public static final int INVENTORY_WIDGET = 149;
 	public static final int INVENTORY_ITEMS = 0;
+	public static final int INVENTORY_ITEM_WIDTH = 42;
+	public static final int INVENTORY_ITEM_HEIGHT = 36;
+	//DIFFERENCE BETWEEN CENTER POINTS
+	public static final int INVENTORY_ITEM_X_DIFFERENCE = 18;
+	public static final int INVENTORY_ITEM_Y_DIFFERENCE = 16;
+	public static final int INVENTORY_SIZE = 28;
 	public static final int INVENTORY_BANK_WIDGET = 15;
 	@Deprecated
 	public static final int INVENTORY_BANK = 3;
@@ -103,13 +131,14 @@ public final class Constants {
 
 	public static final int CHAT_INPUT = 162;
 	public static final int CHAT_VIEWPORT = 30;
-	public static final int CHAT_INPUT_TEXT = 35;
+	public static final int CHAT_INPUT_TEXT = 44;
 	public static final int CHAT_WIDGET = 219;
 	public static final int[][] CHAT_CONTINUES = {
-			{231, 2}, //npc
-			{217, 2}, //player
+			{229, 2},
+			{231, 3}, //npc
+			{217, 3}, //player
 			{229, 1},  //acknowledge
-			{233, 2},  //skill level-up
+			{233, 3},  //skill level-up
 			{11, 3},   //at tutorials island
 	};
 	public static final int[] CHAT_OPTIONS = {

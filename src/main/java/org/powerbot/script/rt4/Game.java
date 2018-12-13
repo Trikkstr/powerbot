@@ -18,6 +18,7 @@ public class Game extends ClientAccessor {
 	private static final int[] ARRAY_SIN = new int[2048];
 	private static final int[] ARRAY_COS = new int[2048];
 
+
 	static {
 		for (int i = 0; i < 2048; i++) {
 			ARRAY_SIN[i] = (int) (65536d * Math.sin(i * 0.0030679615d));
@@ -27,6 +28,26 @@ public class Game extends ClientAccessor {
 
 	public Game(final ClientContext ctx) {
 		super(ctx);
+	}
+
+	/**
+	 * Logs out of the game into either the lobby or login screen.
+	 *
+	 * @return {@code true} if successfully logged out; otherwise {@code false}
+	 */
+	public boolean logout() {
+		if (ctx.game.tab(Tab.LOGOUT)) {
+			Component c = ctx.widgets.widget(Constants.LOGOUT_BUTTON_WIDGET).component(Constants.LOGOUT_BUTTON_COMPONENT);
+			if (c.visible() && c.valid() && c.interact("Logout")) {
+				return Condition.wait(new Condition.Check() {
+					@Override
+					public boolean poll() {
+						return clientState() == Constants.GAME_LOGIN;
+					}
+				});
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -54,8 +75,9 @@ public class Game extends ClientAccessor {
 		}
 		final Keybind keybind;
 		final boolean interacted;
-		if (hotkey && (keybind = Keybind.keybind(tab)) != Keybind.NONE) {
-			interacted = ctx.input.send(keybind.key(ctx));
+		final String key;
+		if (hotkey && (keybind = Keybind.keybind(tab)) != Keybind.NONE && !(key = keybind.key(ctx)).equals("")) {
+			interacted = ctx.input.send(key);
 		} else {
 			final Component c = getByTexture(tab.textures);
 			interacted = c != null && c.click(new Filter<MenuCommand>() {
@@ -414,19 +436,19 @@ public class Game extends ClientAccessor {
 	 */
 	public enum Tab {
 		ATTACK("Combat Options", 168),
-		STATS("Stats", 898),
+		STATS("Skills", 898),
 		QUESTS(new String[]{"Quest List", "Minigames", "Achievement Diaries", "Kourend Tasks"}, 776, 1052, 1053, 1299),
-		INVENTORY("Inventory", 884),
+		INVENTORY("Inventory", 900),
 		EQUIPMENT("Worn Equipment", 901),
 		PRAYER("Prayer", 902),
 		MAGIC("Magic", 780, 1582, 1583, 1584),
-		CLAN_CHAT("Clan Chat", 895),
-		FRIENDS_LIST("Friends List", 904),
-		IGNORED_LIST("Ignore List", 905),
-		LOGOUT("Logout", 906, 542),
-		OPTIONS("Options", 907),
-		EMOTES("Emotes", 908),
-		MUSIC("Music Player", 909),
+		CLAN_CHAT("Clan Chat", 904),
+		FRIENDS_LIST("Friends List", 782),
+		IGNORED_LIST("Ignore List", 783),
+		LOGOUT("Logout", 907, 542),
+		OPTIONS("Options", 908),
+		EMOTES("Emotes", 909),
+		MUSIC("Music Player", 910),
 		NONE("", -1);
 		public final String[] tips;
 		public final int[] textures;

@@ -15,7 +15,7 @@ import org.powerbot.script.Tile;
  * A utility class for withdrawing and depositing items, opening and closing the bank, and finding the closest usable bank.
  */
 public class Bank extends ItemQuery<Item> {
-	
+
 	public Bank(final ClientContext ctx) {
 		super(ctx);
 	}
@@ -186,6 +186,7 @@ public class Bank extends ItemQuery<Item> {
 		}, 30, 10));
 	}
 
+
 	/**
 	 * Withdraws an item with the provided id and amount.
 	 *
@@ -240,15 +241,17 @@ public class Bank extends ItemQuery<Item> {
 			action = "Withdraw-All-but-1";
 		} else if (amount == -2) {
 			action = "Placeholder";
+		} else if (amount == -3) {
+			action = "Withdraw-" + withdrawXAmount();
 		} else if (check(item, amount)) {
 			action = "Withdraw-" + amount;
 		} else {
 			action = "Withdraw-X";
 		}
 		final int cache = ctx.inventory.select().count(true);
-		if(!item.component().visible()){
-         	   ctx.bank.currentTab(0);
-        	}
+		if (!item.component().visible()) {
+			ctx.bank.currentTab(0);
+		}
 		if (item.contains(ctx.input.getLocation())) {
 			if (!(ctx.menu.click(new Filter<MenuCommand>() {
 				@Override
@@ -462,8 +465,8 @@ public class Bank extends ItemQuery<Item> {
 	 * @return {@code true} if the tab was successfully changed; otherwise {@code false}
 	 */
 	public boolean currentTab(final int index) {
-		final Component c = ctx.widgets.component(Constants.BANK_WIDGET, 10).component(index);
-		return c.click() && Condition.wait(new Condition.Check() {
+		final Component c = ctx.widgets.component(Constants.BANK_WIDGET, 21).component(index);
+		return (currentTab() == index) || c.click() && Condition.wait(new Condition.Check() {
 			@Override
 			public boolean poll() {
 				return currentTab() == index;
@@ -493,6 +496,78 @@ public class Bank extends ItemQuery<Item> {
 		return ctx.varpbits.varpbit(Constants.BANK_STATE, 0, 0x1) == 1;
 	}
 
+	/**
+	 * Returns the currently selected withdraw mode.
+	 *
+	 * @return {@code Amount.UNDEFINED} if no amount is specified. If not, it returns the respective selected withdraw mode quantity.
+	 */
+	public Amount withdrawModeQuantity() {
+		int withdrawModeNumber = ctx.varpbits.varpbit(Constants.BANK_QUANTITY);
+		switch(withdrawModeNumber) {
+			case Constants.BANK_WITHDRAW_MODE_ONE: return Amount.ONE;
+			case Constants.BANK_WITHDRAW_MODE_FIVE: return Amount.FIVE;
+			case Constants.BANK_WITHDRAW_MODE_TEN: return Amount.TEN;
+			case Constants.BANK_WITHDRAW_MODE_X: return Amount.X;
+			case Constants.BANK_WITHDRAW_MODE_ALL: return Amount.ALL;
+			default: return Amount.PLACEHOLDER;
+		}
+	}
+
+	/**
+	 * Gives the component value of the quantity amount to be used.
+	 *
+	 * @param amount specifies the amount to get the component for.
+	 * @return {@code -1} if the amount specified doesn't exist. If not, it returns the respective component value.
+	 */
+	public int quantityComponentValue(Amount amount) {
+		int quantityComponentValue;
+		switch (amount) {
+			case ONE:
+				quantityComponentValue = Constants.BANK_QUANTITY_ONE;
+				break;
+			case FIVE:
+				quantityComponentValue = Constants.BANK_QUANTITY_FIVE;
+				break;
+			case TEN:
+				quantityComponentValue = Constants.BANK_QUANTITY_TEN;
+				break;
+			case X:
+				quantityComponentValue = Constants.BANK_QUANTITY_X;
+				break;
+			case ALL:
+				quantityComponentValue = Constants.BANK_QUANTITY_ALL;
+				break;
+			default:
+				quantityComponentValue = -1;
+		}
+		return quantityComponentValue;
+	}
+	
+	/**
+	 * Select or verify the current withdraw quantity mode within the bank. Bank must be opened if you intend to set, but can be checked without opening.
+	 *
+	 * @param amount the relevant amount enum
+	 * @return {@code true} if the passed amount was set, or has been set.
+	 */
+	public boolean withdrawModeQuantity(Amount amount) {
+		int quantityComponentValue;
+		if (withdrawModeQuantity() == amount) {
+			return true;
+		} else if (!opened() || (quantityComponentValue = quantityComponentValue(amount)) < -1) {
+			return false;
+		} else {
+			return (ctx.widgets.widget(Constants.BANK_WIDGET).component(quantityComponentValue).click() && Condition.wait(()-> withdrawModeQuantity() == amount, 30, 10));
+		}
+	}
+	
+	/**
+	 * Check the current amount that is set to Withdraw-X
+	 *
+	 * @return The amount representation of withdraw-x
+	 */
+	public int withdrawXAmount() {
+		return ctx.varpbits.varpbit(Constants.BANK_X_VALUE) / 2;
+	}
 
 	/**
 	 * @param noted {@code true} to set withdrawing mode to noted, {@code false} to set it to withdraw normally
@@ -546,11 +621,16 @@ public class Bank extends ItemQuery<Item> {
 	/**
 	 * Amount
 	 * An enumeration providing standard bank amount options.
+	 * X is the relative to whatever the current value of X is.
 	 */
 	public enum Amount {
-		ONE(1), FIVE(5), TEN(10), ALL_BUT_ONE(-1), ALL(0), PLACEHOLDER(-2);
+		X, PLACEHOLDER, ALL_BUT_ONE, ALL, ONE, FIVE(5), TEN(10);
 
 		private final int value;
+		
+		Amount() {
+			value = ordinal() - 3;
+		}
 
 		Amount(final int value) {
 			this.value = value;

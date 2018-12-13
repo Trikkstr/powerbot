@@ -2,32 +2,33 @@ package org.powerbot.script.rt4;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.powerbot.script.Condition;
+import org.powerbot.script.Filter;
 
 /**
  * DepositBox
  * A utility class for depositing items, opening and closing a deposit box, and finding the closest usable bank deposit box.
  */
 public class DepositBox extends ItemQuery<Item> {
+	private static final int EMPTY_SLOT_ZOOM = 1777;
+
 	public DepositBox(final ClientContext ctx) {
 		super(ctx);
 	}
 
 	@Override
 	protected List<Item> get() {
-		final List<Item> items = new ArrayList<Item>();
+		final List<Item> items = new ArrayList<>();
 		if (!opened()) {
 			return items;
 		}
 
 		final Component[] a = ctx.widgets.component(Constants.DEPOSITBOX_WIDGET, Constants.DEPOSITBOX_ITEMS).components();
 		for (final Component c : a) {
-			if (!c.valid() || c.modelZoom() == 1777) {
-				break;
+			if (c.valid() && c.modelZoom() != EMPTY_SLOT_ZOOM) {
+				items.add(new Item(ctx, c));
 			}
-			items.add(new Item(ctx, c));
 		}
 
 		return items;
@@ -67,12 +68,7 @@ public class DepositBox extends ItemQuery<Item> {
 		} else {
 			interacted = ctx.widgets.component(Constants.DEPOSITBOX_WIDGET, 1).component(Constants.DEPOSITBOX_CLOSE).interact("Close");
 		}
-		return interacted && Condition.wait(new Condition.Check() {
-			@Override
-			public boolean poll() {
-				return !opened();
-			}
-		}, 150);
+		return interacted && Condition.wait(()->!opened(), 30, 10);
 	}
 
 	/**
@@ -105,7 +101,7 @@ public class DepositBox extends ItemQuery<Item> {
 	/**
 	 * Attempts to deposit the specified item into the deposit box.
 	 *
-	 * @param id     The Item ID.
+	 * @param id	 The Item ID.
 	 * @param amount The amount to deposit.
 	 * @return {@code true} if the item of the specified amount was successfully deposited, {@code false} otherwise.
 	 */
@@ -116,7 +112,7 @@ public class DepositBox extends ItemQuery<Item> {
 	/**
 	 * Attempts to deposit the specified item into the deposit box.
 	 *
-	 * @param id     The Item ID.
+	 * @param id	 The Item ID.
 	 * @param amount The amount to deposit.
 	 * @return {@code true} if the item of the specified amount was successfully deposited, {@code false} otherwise.
 	 */
@@ -151,12 +147,65 @@ public class DepositBox extends ItemQuery<Item> {
 			Condition.sleep();
 			ctx.input.sendln(String.valueOf(amount));
 		}
-		return Condition.wait(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				return count != select().id(id).count(true);
+		return Condition.wait(() -> count != select().id(id).count(true), 300, 10);
+	}
+
+	/**
+	 * Deposits the players inventory excluding the specified ids.
+	 *
+	 * @param ids the ids of the items to ignore when depositing
+	 * @return {@code true} if the items were deposited, determines if amount was matched; otherwise {@code false}
+	 */
+	public boolean depositAllExcept(final int... ids) {
+		return depositAllExcept(item -> {
+			final int id = item.id();
+			for (final int i : ids) {
+				if (id == i) {
+					return true;
+				}
 			}
-		}, 300, 10);
+			return false;
+		});
+	}
+
+	/**
+	 * Deposits the players inventory excluding the specified item names.
+	 *
+	 * @param names the names of the items to ignore when depositing
+	 * @return {@code true} if the items were deposited, determines if amount was matched; otherwise {@code false}
+	 */
+	public boolean depositAllExcept(final String... names) {
+		return depositAllExcept(item -> {
+			for (final String s : names) {
+				if (s == null) {
+					continue;
+				}
+				if (item.name().toLowerCase().contains(s.toLowerCase())) {
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	/**
+	 * Deposits the players inventory excluding the items that match the provided filter.
+	 *
+	 * @param filter the filter of the items to ignore when depositing
+	 * @return {@code true} if the items were deposited, determines if amount was matched; otherwise {@code false}
+	 */
+	public boolean depositAllExcept(final Filter<Item> filter) {
+		if (select().select(filter).count() == 0) {
+			return depositInventory();
+		}
+		for (final Item i : select().shuffle()) {
+			if (filter.accept(i)) {
+				continue;
+			}
+			deposit(i.id(), Amount.ALL);
+		}
+
+		return select().count() == select(filter).count();
 	}
 
 	@Override

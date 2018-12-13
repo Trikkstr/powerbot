@@ -35,17 +35,27 @@ public final class Constants {
 			new Tile(3191, 3445, 0), new Tile(3180, 3433, 0)
 	};
 	public static final int BANK_WIDGET = 762;
-	public static final int BANK_CLOSE = 527;
-	public static final int BANK_ITEMS = 224;
-	public static final int BANK_PRESET = 35;
-	public static final int BANK_LOAD1 = 43;
-	public static final int BANK_LOAD2 = 51;
-	public static final int BANK_WITHDRAW_MODE = 59;
-	public static final int BANK_DEPOSIT_INVENTORY = 88;
-	public static final int BANK_DEPOSIT_EQUIPMENT = 91;
-	public static final int BANK_DEPOSIT_FAMILIAR = 94;
-	public static final int BANK_DEPOSIT_MONEY = 97;
-	public static final int BANK_SCROLLBAR = 238;
+	public static final int BANK_CLOSE = 517;
+	public static final int BANK_ITEMS = 213;
+	public static final int BANK_PRESET_CONTAINER = 1;
+	public static final int BANK_PRESET = 0;
+	public static final int BANK_LOAD1 = 1;
+	public static final int BANK_LOAD2 = 2;
+	public static final int BANK_LOAD3 = 3;
+	public static final int BANK_LOAD4 = 4;
+	public static final int BANK_LOAD5 = 5;
+	public static final int BANK_LOAD6 = 6;
+	public static final int BANK_LOAD7 = 7;
+	public static final int BANK_LOAD8 = 8;
+	public static final int BANK_LOAD9 = 9;
+	public static final int BANK_LOAD10 = 10;
+	public static final int BANK_BURDEN_LOAD1 = 47;
+	public static final int BANK_WITHDRAW_MODE = 54;
+	public static final int BANK_DEPOSIT_INVENTORY = 76;
+	public static final int BANK_DEPOSIT_EQUIPMENT = 78;
+	public static final int BANK_DEPOSIT_FAMILIAR = 82;
+	public static final int BANK_DEPOSIT_MONEY = 84;
+	public static final int BANK_SCROLLBAR = 207;
 	public static final int BANK_STATE = 110;
 	public static final int BANK_WITHDRAW_MODE_STATE = 160;
 
@@ -94,7 +104,7 @@ public final class Constants {
 	public static final int FLOATINGMESSAGE_WARNING = 8524;
 
 	public static final int EQUIPMENT_WIDGET = 1464;
-	public static final int EQUIPMENT_CONTAINER = 15;
+	public static final int EQUIPMENT_CONTAINER = 16;
 	public static final int EQUIPMENT_GEAR = 1462;
 	public static final int EQUIPMENT_GEAR_CONTAINER = 14;
 
@@ -114,14 +124,14 @@ public final class Constants {
 	public static final int HUD_MENU = 1431;
 	public static final int HUD_MENU_BOUNDS = 0;
 	public static final int HUD_MENU_WINDOWS = 1432;
-	public static final int HUD_MENU_WINDOWS_LIST = 4;
+	public static final int HUD_MENU_WINDOWS_LIST = 6;
 
 	public static final int LOBBY_WIDGET = 906;
-	public static final int LOBBY_PLAY = 140;
-	public static final int LOBBY_CURRENT_WORLD = 122;
-	public static final int LOBBY_CLOSE = 313;
+	public static final int LOBBY_PLAY = 121;
+	public static final int LOBBY_CURRENT_WORLD = 109;
+	public static final int LOBBY_CLOSE = 300;
 	public static final int LOBBY_CLOSE_SUB = 1;
-	public static final int LOBBY_TABS = 104;
+	public static final int LOBBY_TABS = 91;
 	public static final int LOBBY_TAB_START = 3;
 	public static final int LOBBY_TAB_LENGTH = 4;
 	public static final int LOBBY_TAB_CURRENT = 27;
@@ -141,12 +151,13 @@ public final class Constants {
 	public static final int LOBBY_TEXTURE_LOOTSHARE = 18694;
 
 	public static final int MOVEMENT_WIDGET = 1465;
+	public static final int MOVEMENT_COMPASS_PARENT = 1919;
 	public static final int MOVEMENT_MAP = 0;
-	public static final int MOVEMENT_RUN = 47;
-	public static final int MOVEMENT_WORLD_MAP = 43;
-	public static final int MOVEMENT_RUN_ENERGY = 51;
-	public static final int MOVEMENT_COMPASS = 55;
-	public static final int MOVEMENT_HOME_TELEPORT = 57;
+	public static final int MOVEMENT_RUN = 15;
+	public static final int MOVEMENT_WORLD_MAP = 9;
+	public static final int MOVEMENT_RUN_ENERGY = 16;
+	public static final int MOVEMENT_COMPASS = 1;
+	public static final int MOVEMENT_HOME_TELEPORT = 18;
 	public static final int MOVEMENT_RUN_STATE = 463;
 
 	public static final int POWERS_PRAYER_POINTS = 3274;
@@ -185,10 +196,10 @@ public final class Constants {
 	public static final int PLAYER_INVENTORY_ITEMS = 31;
 
 	public static final int BACKPACK_WIDGET = 1473;
-	public static final int BACKPACK_SCROLLBAR = 4;
-	public static final int BACKPACK_VIEW = 5;
-	public static final int BACKPACK_CONTAINER = 5;
-	public static final int BACKPACK_BANK = 762 << 16 | 27;
+	public static final int BACKPACK_SCROLLBAR = 3;
+	public static final int BACKPACK_VIEW = 7;
+	public static final int BACKPACK_CONTAINER = 7;
+	public static final int BACKPACK_BANK = 762 << 16 | 28;
 	public static final int BACKPACK_DEPOSITBOX = 11 << 16 | 1;
 	public static final int BACKPACK_GEAR = 1474 << 16 | 13;
 	public static final int FAMILIAR_BACKPACK = FAMILIAR_INVENTORY_WIDGET << 16 | PLAYER_INVENTORY_ITEMS;
@@ -247,10 +258,11 @@ public final class Constants {
 	public static final int ITEMS_BANK = 95;
 
 	public static final int LOGIN_WIDGET = 596;
-	public static final int LOGIN_ERROR = 138;
+	public static final int LOGIN_WIDGET_2 = 744;
+	public static final int LOGIN_ERROR = 220;
 	public static final int LOGIN_RETRY = 177;
 	public static final int LOGIN_USERNAME = 38;
-	public static final int LOGIN_PASSWORD = 63;
+	public static final int LOGIN_PASSWORD = 67;
 	public static final int LOGIN_DO = 71;
 
 	public static final int INFO_BANWARNING = 1347 << 16 | 16;
@@ -259,22 +271,21 @@ public final class Constants {
 	public static final int[] TICKETDESTROY_ITEMS = {24154, 24155};
 
 	public static final int[] WIDGETCLOSER_ITEMS = {//TODO: review all these components
-			906 << 16 | 545,//transaction
 			1422 << 16 | 162, //world map
-			1253 << 16 | 176, // Squeal of Fortune window
-			906 << 16 | 427, // validate email
-			906 << 16 | 230, // validate email
+			1253 << 16 | 803, // Treasure hunter window
+			906 << 16 | 502, // validate email
 			1139 << 16 | 12, // Extras window
 			438 << 16 | 24,//recruit a friend
 			622 << 16 | 21,//member loyalty
 			204 << 16 | 3,//membership offer
 			149 << 16 | 237,//pickaxe
-			1252 << 16 | 5, // Squeal of Fortune notification
+			1252 << 16 | 6, // Treasure hunter notification
 			1223 << 16 | 18,//Achievement continue button
 			1048 << 16 | 21, // key tokens
 			669 << 16 | 1,//hints [A]
 			1155 << 16 | 39,//Wicked hood offer
 			14 << 16 | 64,//confirm pin
+			906 << 16 | 550, //nxt warning skip
 			((INFO_BANWARNING >> 16) << 16) | INFO_BANWARNING_CLOSE, // ban warning close button
 	};
 	public static final int[] WIDGETCLOSER_TRADE_ITEMS = {
