@@ -27,15 +27,15 @@ public class Kebab extends Task {
     public void execute()
     {
         Npc karim = ctx.npcs.select().id(529).poll();
-        if(ctx.objects.select().id(1535).poll().inViewport()) //if door is closed
+        if(ctx.objects.select().id(1536).poll().inViewport() && !kebabRoom.contains(ctx.players.local())) //if door is closed
         {
-            ctx.objects.select().id(1535).poll().interact("Open"); //open it
+            ctx.objects.select().id(1536).poll().interact("Open"); //open it
         }
         ctx.camera.turnTo(karim);
         karim.interact(false, "Talk-to", "Karim"); //right-click talk to karim for the first time
         ctx.camera.pitch(99); //make sure camera pitch is all the way up
         sleep(1000); //wait 1 second, and if you haven't moved yet, try again
-        while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(2).visible())
+        if(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(3).visible())
         {
             ctx.camera.turnTo(karim); //turn towards him
             ctx.movement.step(karim); //walk towards him
@@ -45,19 +45,22 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+                return ctx.widgets.widget(231).component(3).visible();
             }
         }, 1000, 15); //check to see if chat log is open every second for 15 seconds for the first time
         buyKebab(); //run through the rest of the chat
         while(ctx.inventory.select().count() < 27 && ctx.inventory.select().id(995).count() >= 1) //while your inventory is not full, or you're not out of coins
         {
+            if(ctx.controller.isStopping()){
+                break;
+            }
             if(!kebabRoom.contains(ctx.players.local())) //if we're not in the kebab room, relocate the guy
             {
-                ctx.camera.turnTo(karim); //turn towards him
-                ctx.movement.step(karim); //walk towards him
-            }
+                break;
+            } else {
             karim.interact("Talk-to"); //try to left click him
             buyKebab(); //then buy 1 kebab
+            }
         }
     }
 
@@ -67,25 +70,25 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+                return ctx.widgets.widget(231).component(3).visible();
             }
         }, 100, 60); //check to see if chat log is open every 100 ms for 6 seconds
-        ctx.widgets.widget(231).component(2).interact("Continue");
+        ctx.widgets.widget(231).component(3).click();
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(219).component(0).component(2).visible();
+                return ctx.widgets.widget(219).component(1).component(2).visible();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
-        ctx.widgets.widget(219).component(0).component(2).interact("Continue");
+        ctx.widgets.widget(219).component(1).component(2).click();
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(217).component(2).visible();
+                return ctx.widgets.widget(217).component(3).visible();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
-        ctx.widgets.widget(217).component(2).interact("Continue");
+        ctx.widgets.widget(217).component(3).click();
     }
 }
